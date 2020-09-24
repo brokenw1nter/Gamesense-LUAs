@@ -15,7 +15,7 @@ x88Cheats is a LUA that replicates the GUI of MasterLooser's cheat
 
 ## Bugs
 * "HS Only" hasn't been implemented yet due to me not knowing how to get the value of some of the items in the menu.
-* "In Lobby" currently doesn't work due to paint only being called in game, if there's another way of drawing the GUI please let me know.
+* "In Lobby" currently doesn't work due to paint only being called in game, if there's another way of drawing the GUI please let me know. - Should work
 * "NoHands" doesn't check for Hands transparency, meaning it will display that it is on when you have Hands Chams enabled.
 * "Chams" doesn't display material being used due to me not knowing how to get the value of an unnamed combobox.
 * "MPoints" doesn't check or display anything also due to me not knowing how to get the value of the different comboboxes.
