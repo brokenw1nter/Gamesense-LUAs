@@ -80,11 +80,10 @@ local lua_end = new_label(tab, box, '~~~~~~~~~~~~~~~~~~~~~~~~~~~~~')
 --------------------------------------------------------------------------------
 local function thirdperson_dead()
 	local tpd_checkbox = ref('VISUALS', 'Effects', 'Force third person (dead)')
-	if (get(tpa_hotkey)) then
-		set(tpd_checkbox, true)
-	else
-		set(tpd_checkbox, false)
-	end
+  set(tpd_checkbox, get(tpa_hotkey))
+  --[[ 
+		ui.get returns true or false, which can be used here.
+	 ]]
 end
 
 local function headshot_only()
@@ -389,7 +388,6 @@ end
 
 local function stats()
 	-- Grabs Stats if Player is in a Game
-	
 	local player_resource = get_all('CCSPlayerResource')[1]
 	local kills = get_prop(player_resource, 'm_iKills', local_player())
 	local deaths = get_prop(player_resource, 'm_iDeaths', local_player())
