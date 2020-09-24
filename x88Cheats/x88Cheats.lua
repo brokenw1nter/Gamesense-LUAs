@@ -9,7 +9,7 @@
 		  Also I don't write LUAs so I don't know much about the API so if there are more efficient ways of doing what I have done, please let me know.
 	Changelog: Rewritten for Gamesense's LUA API
 	Bugs: "HS Only" hasn't been implemented yet due to me not knowing how to get the value of some of the items in the menu.
-		  "In Lobby" currently doesn't work due to paint only being called in game, if there's another way of drawing the GUI please let me know.
+		  "In Lobby" currently doesn't work due to paint only being called in game, if there's another way of drawing the GUI please let me know. - Fixed (I think lol)
 		  "NoHands" doesn't check for Hands transparency, meaning it will display that it is on when you have Hands Chams enabled.
 		  "Chams" doesn't display material being used due to me not knowing how to get the value of an unnamed combobox.
 		  "MPoints" doesn't check or display anything also due to me not knowing how to get the value of the different comboboxes.
@@ -187,7 +187,7 @@ local function super_legit_checker()
 end
 
 local function header()
-	local user_name = get_player_name(local_player())
+	local user_name = panorama.open().MyPersonaAPI.GetName()
 	local co_owner = 'tydoo'
 	draw_text(get(base_x), get(base_y), 255, 255, 125, 255, font, 'Hello '..user_name..' :)')
 	draw_text(get(base_x), get(base_y) + 15, 255, 255, 125, 255, font, 'Hello '..co_owner..' :)')
@@ -195,6 +195,7 @@ local function header()
 end
 
 local function sub_header()
+	if not entity.is_alive(local_player()) then return end
 	local lp_address = ffi_cast('int*', client_entity(ent_list, local_player()))[0]
 	draw_text(get(base_x) + 100, get(base_y) + 14, 255, 255, 125, 255, font, 'LocalPlayer '..dec_hex(lp_address))
 	
@@ -272,7 +273,7 @@ local function left_panel()
 	
 	-- AA Pitch Offset --
 	-- Honestly not even sure if this is supposed to be the pitch offset but it's something lol
-	if (get(ref('AA', 'Anti-aimbot angles', 'Enabled'))) then
+	if (get(ref('AA', 'Anti-aimbot angles', 'Enabled')) and entity.is_alive(local_player())) then
 		local pitch_angle, yaw_angle, other_angle = get_prop(local_player(), 'm_angEyeAngles')
 		draw_text(get(base_x) + 230, get(base_y) + 150, 62, 255, 255, 255, font, tostring(floor(pitch_angle))..'.0')
 	else draw_text(get(base_x) + 230, get(base_y) + 150, 62, 255, 255, 255, font, '0.0') end
@@ -395,7 +396,9 @@ local function stats()
 	local kills = get_prop(player_resource, 'm_iKills', local_player())
 	local deaths = get_prop(player_resource, 'm_iDeaths', local_player())
 	local ping = get_prop(player_resource, 'm_iPing', local_player())
-	
+
+	if not entity.is_alive(local_player()) then kills = 0 deaths = 0 kd_ratio = 0 ping = 0
+	end
 	-- Calculates Kills/Deaths Ratio
 	local kd_ratio = ''
 	if (deaths > 0) then kd_ratio = format('%.2f', (kills/deaths))
@@ -423,9 +426,9 @@ end
 --------------------------------------------------------------------------------
 local function on_paint()
 	if (get(enabled)) then main() end
-	if (get(tp_dead)) then thirdperson_dead() end
-	if (get(hs_only)) then headshot_only() end
-	if (get(spec_list)) then spectators_list() end
+	if (get(tp_dead) and local_player()) then thirdperson_dead() end
+	if (get(hs_only) and local_player()) then headshot_only() end
+	if (get(spec_list) and local_player()) then spectators_list() end
 end
 
-set_event_callback('paint', on_paint)
+set_event_callback('paint_ui', on_paint)
