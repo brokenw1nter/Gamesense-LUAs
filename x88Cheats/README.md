@@ -4,8 +4,8 @@
 x88Cheats is a LUA that replicates the GUI of MasterLooser's cheat
 
 ## Changelog
-###### [Version 2.0]
-* Rewritten for Gamesense's LUA API
+###### [Version 2.0.1]
+* Fixed "In Lobby" function
 
 ## Note
 * Started this at the beginning of this year to learn the basics of LUA for another API but now that I'm here, I thought I would convert it then share it since I want to get some feedback on what I could do to improve my habits in LUA.
@@ -15,7 +15,6 @@ x88Cheats is a LUA that replicates the GUI of MasterLooser's cheat
 
 ## Bugs
 * "HS Only" hasn't been implemented yet due to me not knowing how to get the value of some of the items in the menu.
-* "In Lobby" currently doesn't work due to paint only being called in game, if there's another way of drawing the GUI please let me know.
 * "NoHands" doesn't check for Hands transparency, meaning it will display that it is on when you have Hands Chams enabled.
 * "Chams" doesn't display material being used due to me not knowing how to get the value of an unnamed combobox.
 * "MPoints" doesn't check or display anything also due to me not knowing how to get the value of the different comboboxes.
@@ -27,8 +26,9 @@ x88Cheats is a LUA that replicates the GUI of MasterLooser's cheat
 * Making "Legit" and "SuperLegit" load preset settings, mainly to just turn off anything that would count as not Legit.
 
 ## Credits
-* Aviarita (Gamesense Forums) - Anti-Aim Angles
-* kopretinka (Gamesense Forums) - Spectators List
+* Aviarita (GS) - Anti-Aim Angles
+* kopretinka (GS) - Spectators List
+* sshunko (GS) and Nulledcore (GH) - Helping with "In Lobby" Function
 
 ## Images
 https://imgur.com/a/zXv4nJz

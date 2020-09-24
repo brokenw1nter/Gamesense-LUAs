@@ -1,15 +1,14 @@
 --[[
 	Title: x88Cheats
 	Author: brokenw1nter (Discord: w1nter#4947)
-	Version: 2.0
+	Version: 2.0.1
 	Note: Started this at the beginning of this year to learn the basics of LUA for another API but now that I'm here,
 		  I thought I would convert it then share it since I want to get some feedback on what I could do to improve my habits in LUA.
 		  I'm also stupidly dumb and can not for the life of me figure out how to check for the things listed in "Bugs".
 		  If you would like to help with this LUA, just let me know as I'm opened to anyone that wants to help perfect this LUA.
 		  Also I don't write LUAs so I don't know much about the API so if there are more efficient ways of doing what I have done, please let me know.
-	Changelog: Rewritten for Gamesense's LUA API
+	Changelog: Fixed "In Lobby" function
 	Bugs: "HS Only" hasn't been implemented yet due to me not knowing how to get the value of some of the items in the menu.
-		  "In Lobby" currently doesn't work due to paint only being called in game, if there's another way of drawing the GUI please let me know.
 		  "NoHands" doesn't check for Hands transparency, meaning it will display that it is on when you have Hands Chams enabled.
 		  "Chams" doesn't display material being used due to me not knowing how to get the value of an unnamed combobox.
 		  "MPoints" doesn't check or display anything also due to me not knowing how to get the value of the different comboboxes.
@@ -17,8 +16,9 @@
 		   Function for loading visual settings to replicate @MasterLooser's
 		   Make the GUI interactive rather than just being a huge indicator.
 		   Making "Legit" and "SuperLegit" load preset settings, mainly to just turn off anything that would count as not Legit.
-	Credits: Aviarita (Gamesense Forums) - Anti-Aim Angles
-			 kopretinka (Gamesense Forums) - Spectators List
+	Credits: Aviarita (GS) - Anti-Aim Angles
+			 kopretinka (GS) - Spectators List
+			 sshunko (GS) and Nulledcore (GH) - Helping with "In Lobby" Function
 ]]--
 
 --------------------------------------------------------------------------------
@@ -187,7 +187,7 @@ local function super_legit_checker()
 end
 
 local function header()
-	local user_name = get_player_name(local_player())
+	local user_name = panorama.open().MyPersonaAPI.GetName()
 	local co_owner = 'tydoo'
 	draw_text(get(base_x), get(base_y), 255, 255, 125, 255, font, 'Hello '..user_name..' :)')
 	draw_text(get(base_x), get(base_y) + 15, 255, 255, 125, 255, font, 'Hello '..co_owner..' :)')
@@ -195,17 +195,21 @@ local function header()
 end
 
 local function sub_header()
-	local lp_address = ffi_cast('int*', client_entity(ent_list, local_player()))[0]
-	draw_text(get(base_x) + 100, get(base_y) + 14, 255, 255, 125, 255, font, 'LocalPlayer '..dec_hex(lp_address))
-	
-	local lby_angle = get_prop(local_player(), 'm_flLowerBodyYawTarget')
-	local pitch_angle, yaw_angle, other_angle = get_prop(local_player(), 'm_angEyeAngles')
-	local diff_angle = abs(lby_angle - yaw_angle)
-	
-	if (get(ref('AA', 'Anti-aimbot angles', 'Enabled'))) then
-		draw_text(get(base_x), get(base_y) + 30, 255, 255, 125, 255, font, 'Fake: '..tostring(floor(lby_angle))..'.0')
-		draw_text(get(base_x) + 100, get(base_y) + 30, 255, 255, 125, 255, font, 'Real: '..tostring(floor(yaw_angle))..'.0')
-		draw_text(get(base_x) + 200, get(base_y) + 30, 62, 255, 62, 255, font, 'Diff: '..tostring(floor(diff_angle))..'.0')
+	if (local_player()) then
+		local lp_address = ffi_cast('int*', client_entity(ent_list, local_player()))[0]
+		draw_text(get(base_x) + 100, get(base_y) + 14, 255, 255, 125, 255, font, 'LocalPlayer '..dec_hex(lp_address))
+		
+		local lby_angle = get_prop(local_player(), 'm_flLowerBodyYawTarget')
+		local pitch_angle, yaw_angle, other_angle = get_prop(local_player(), 'm_angEyeAngles')
+		local diff_angle = abs(lby_angle - yaw_angle)
+		
+		if (get(ref('AA', 'Anti-aimbot angles', 'Enabled'))) then
+			draw_text(get(base_x), get(base_y) + 30, 255, 255, 125, 255, font, 'Fake: '..tostring(floor(lby_angle))..'.0')
+			draw_text(get(base_x) + 100, get(base_y) + 30, 255, 255, 125, 255, font, 'Real: '..tostring(floor(yaw_angle))..'.0')
+			draw_text(get(base_x) + 200, get(base_y) + 30, 62, 255, 62, 255, font, 'Diff: '..tostring(floor(diff_angle))..'.0')
+		end
+	else
+		draw_text(get(base_x) + 100, get(base_y) + 14, 255, 255, 125, 255, font, 'LocalPlayer ')
 	end
 end
 
@@ -272,7 +276,7 @@ local function left_panel()
 	
 	-- AA Pitch Offset --
 	-- Honestly not even sure if this is supposed to be the pitch offset but it's something lol
-	if (get(ref('AA', 'Anti-aimbot angles', 'Enabled'))) then
+	if (local_player() and get(ref('AA', 'Anti-aimbot angles', 'Enabled'))) then
 		local pitch_angle, yaw_angle, other_angle = get_prop(local_player(), 'm_angEyeAngles')
 		draw_text(get(base_x) + 230, get(base_y) + 150, 62, 255, 255, 255, font, tostring(floor(pitch_angle))..'.0')
 	else draw_text(get(base_x) + 230, get(base_y) + 150, 62, 255, 255, 255, font, '0.0') end
@@ -391,21 +395,29 @@ end
 
 local function stats()
 	-- Grabs Stats if Player is in a Game
-	local player_resource = get_all('CCSPlayerResource')[1]
-	local kills = get_prop(player_resource, 'm_iKills', local_player())
-	local deaths = get_prop(player_resource, 'm_iDeaths', local_player())
-	local ping = get_prop(player_resource, 'm_iPing', local_player())
-	
-	-- Calculates Kills/Deaths Ratio
-	local kd_ratio = ''
-	if (deaths > 0) then kd_ratio = format('%.2f', (kills/deaths))
-	else kd_ratio = format('%.2f', kills/1) end
-	
-	-- Prints Stats
-	draw_text(get(base_x) + 150, get(base_y) + 165, 255, 255, 255, 255, font, 'Kills: '..kills)
-	draw_text(get(base_x) + 150, get(base_y) + 180, 255, 255, 255, 255, font, 'Deaths: '..deaths)
-	draw_text(get(base_x) + 150, get(base_y) + 195, 62, 255, 62, 255, font, 'KD: '..kd_ratio)
-	draw_text(get(base_x) + 150, get(base_y) + 210, 255, 255, 255, 255, font, 'Ping: '..ping)
+	if (local_player()) then
+		local player_resource = get_all('CCSPlayerResource')[1]
+		local kills = get_prop(player_resource, 'm_iKills', local_player())
+		local deaths = get_prop(player_resource, 'm_iDeaths', local_player())
+		local ping = get_prop(player_resource, 'm_iPing', local_player())
+		
+		-- Calculates Kills/Deaths Ratio
+		local kd_ratio = ''
+		if (deaths > 0) then kd_ratio = format('%.2f', (kills/deaths))
+		else kd_ratio = format('%.2f', kills/1) end
+		
+		-- Prints Stats
+		draw_text(get(base_x) + 150, get(base_y) + 165, 255, 255, 255, 255, font, 'Kills: '..kills)
+		draw_text(get(base_x) + 150, get(base_y) + 180, 255, 255, 255, 255, font, 'Deaths: '..deaths)
+		draw_text(get(base_x) + 150, get(base_y) + 195, 62, 255, 62, 255, font, 'KD: '..kd_ratio)
+		draw_text(get(base_x) + 150, get(base_y) + 210, 255, 255, 255, 255, font, 'Ping: '..ping)
+	else
+		-- Prints Stats
+		draw_text(get(base_x) + 150, get(base_y) + 165, 255, 255, 255, 255, font, 'Kills: 0')
+		draw_text(get(base_x) + 150, get(base_y) + 180, 255, 255, 255, 255, font, 'Deaths: 0')
+		draw_text(get(base_x) + 150, get(base_y) + 195, 62, 255, 62, 255, font, 'KD: 0.00')
+		draw_text(get(base_x) + 150, get(base_y) + 210, 255, 255, 255, 255, font, 'Ping: 0')
+	end
 end
 
 local function main()
@@ -421,11 +433,11 @@ end
 --------------------------------------------------------------------------------
 -- Callbacks
 --------------------------------------------------------------------------------
-local function on_paint()
+local function on_paint_ui()
 	if (get(enabled)) then main() end
 	if (get(tp_dead)) then thirdperson_dead() end
 	if (get(hs_only)) then headshot_only() end
 	if (get(spec_list)) then spectators_list() end
 end
 
-set_event_callback('paint', on_paint)
+set_event_callback('paint_ui', on_paint_ui)
