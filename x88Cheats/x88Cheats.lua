@@ -265,14 +265,8 @@ local function left_panel()
 	-- AA Mode Option --
 	draw_text(get(base_x), get(base_y) + 150, 255, 255, 255, 255, font, 'AA Mode:')
 	if (get(ref('AA', 'Anti-aimbot angles', 'Enabled'))) then
-		if (get(ref('AA', 'Anti-aimbot angles', 'Body yaw')) == 'Opposite') then
-			draw_text(get(base_x) + 100, get(base_y) + 150, 255, 255, 255, 255, font, 'Opposite')
-		elseif (get(ref('AA', 'Anti-aimbot angles', 'Body yaw')) == 'Jitter') then
-			draw_text(get(base_x) + 100, get(base_y) + 150, 255, 255, 255, 255, font, 'Jitter')
-		elseif (get(ref('AA', 'Anti-aimbot angles', 'Body yaw')) == 'Static') then
-			draw_text(get(base_x) + 100, get(base_y) + 150, 255, 255, 255, 255, font, 'Static')
-		else draw_text(get(base_x) + 100, get(base_y) + 150, 255, 255, 255, 255, font, 'OFF') end
-	else draw_text(get(base_x) + 100, get(base_y) + 150, 255, 255, 255, 255, font, 'OFF') end
+		draw_text(get(base_x) + 100, get(base_y) + 150, 255, 255, 255, 255, font, get(ref('AA', 'Anti-aimbot angles', 'Body yaw')))
+	end
 	
 	-- AA Pitch Offset --
 	-- Honestly not even sure if this is supposed to be the pitch offset but it's something lol
@@ -317,7 +311,7 @@ local function left_panel()
 	if (get(ref('RAGE', 'Aimbot', 'Enabled'))) then
 		if (get(ref('RAGE', 'Aimbot', 'Silent aim'))) then
 			draw_text(get(base_x) + 100, get(base_y) + 240, 62, 62, 255, 255, font, 'Aim Override')
-		else draw_text(get(base_x) + 100, get(base_y) + 240, 255, 255, 255, 255, font, 'OFF') end
+		else draw_text(get(base_x) + 100, get(base_y) + 240, 255, 255, 255, 255, font, 'OFF') end	
 	else draw_text(get(base_x) + 100, get(base_y) + 240, 255, 255, 255, 255, font, 'OFF') end
 	
 	-- AutoFire Option --
@@ -368,12 +362,12 @@ local function right_panel()
 		if (get(ref('RAGE', 'Other', 'Accuracy boost')) ~= 'Off') then
 			draw_text(get(base_x) + 254, get(base_y) + 90, 62, 255, 255, 255, font, 'LBY')
 		else draw_text(get(base_x) + 254, get(base_y) + 90, 255, 255, 255, 255, font, 'OFF') end
-	elseif (get(ref('LEGIT', 'Aimbot', 'Enabled'))) then
+	elseif (not get(ref('RAGE', 'Aimbot', 'Enabled'))) then
 		if (get(ref('LEGIT', 'Other', 'Accuracy boost')) ~= 'Off') then
 			draw_text(get(base_x) + 254, get(base_y) + 90, 62, 255, 255, 255, font, 'Legit')
 		else draw_text(get(base_x) + 254, get(base_y) + 90, 255, 255, 255, 255, font, 'OFF') end
 	else draw_text(get(base_x) + 254, get(base_y) + 90, 255, 255, 255, 255, font, 'OFF') end
-	
+
 	-- BTChams Option --
 	draw_text(get(base_x) + 150, get(base_y) + 105, 255, 255, 255, 255, font, 'BTChams:')
 	if (get(ref('VISUALS', 'Colored models', 'Shadow'))) then
@@ -395,29 +389,24 @@ end
 
 local function stats()
 	-- Grabs Stats if Player is in a Game
-	if (local_player()) then
-		local player_resource = get_all('CCSPlayerResource')[1]
-		local kills = get_prop(player_resource, 'm_iKills', local_player())
-		local deaths = get_prop(player_resource, 'm_iDeaths', local_player())
-		local ping = get_prop(player_resource, 'm_iPing', local_player())
-		
-		-- Calculates Kills/Deaths Ratio
-		local kd_ratio = ''
-		if (deaths > 0) then kd_ratio = format('%.2f', (kills/deaths))
-		else kd_ratio = format('%.2f', kills/1) end
-		
-		-- Prints Stats
-		draw_text(get(base_x) + 150, get(base_y) + 165, 255, 255, 255, 255, font, 'Kills: '..kills)
-		draw_text(get(base_x) + 150, get(base_y) + 180, 255, 255, 255, 255, font, 'Deaths: '..deaths)
-		draw_text(get(base_x) + 150, get(base_y) + 195, 62, 255, 62, 255, font, 'KD: '..kd_ratio)
-		draw_text(get(base_x) + 150, get(base_y) + 210, 255, 255, 255, 255, font, 'Ping: '..ping)
-	else
-		-- Prints Stats
-		draw_text(get(base_x) + 150, get(base_y) + 165, 255, 255, 255, 255, font, 'Kills: 0')
-		draw_text(get(base_x) + 150, get(base_y) + 180, 255, 255, 255, 255, font, 'Deaths: 0')
-		draw_text(get(base_x) + 150, get(base_y) + 195, 62, 255, 62, 255, font, 'KD: 0.00')
-		draw_text(get(base_x) + 150, get(base_y) + 210, 255, 255, 255, 255, font, 'Ping: 0')
-	end
+	
+	local player_resource = get_all('CCSPlayerResource')[1]
+	local kills = get_prop(player_resource, 'm_iKills', local_player())
+	local deaths = get_prop(player_resource, 'm_iDeaths', local_player())
+	local ping = get_prop(player_resource, 'm_iPing', local_player())
+	
+	if not local_player() then kills = 0 deaths = 0 kd_ratio = 0 ping = 0 end
+
+	-- Calculates Kills/Deaths Ratio
+	local kd_ratio = ''
+	if (deaths > 0) then kd_ratio = format('%.2f', (kills/deaths))
+	else kd_ratio = format('%.2f', kills/1) end
+	
+	-- Prints Stats
+	draw_text(get(base_x) + 150, get(base_y) + 165, 255, 255, 255, 255, font, 'Kills: '..kills)
+	draw_text(get(base_x) + 150, get(base_y) + 180, 255, 255, 255, 255, font, 'Deaths: '..deaths)
+	draw_text(get(base_x) + 150, get(base_y) + 195, 62, 255, 62, 255, font, 'KD: '..kd_ratio)
+	draw_text(get(base_x) + 150, get(base_y) + 210, 255, 255, 255, 255, font, 'Ping: '..ping)
 end
 
 local function main()
