@@ -28,7 +28,8 @@ x88Cheats is a LUA that replicates the GUI of MasterLooser's cheat
 ## Credits
 * Aviarita (GS) - Anti-Aim Angles
 * kopretinka (GS) - Spectators List
-* sshunko (GS) and Nulledcore (GH) - Helping with "In Lobby" Function
+* nulled (GS) - Helped with optimizing the LUA
+* sshunko (GS) and nulled (GS) - Helping with "In Lobby" Function
 
 ## Images
 https://imgur.com/a/zXv4nJz
